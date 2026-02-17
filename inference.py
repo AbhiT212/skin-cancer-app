@@ -13,15 +13,19 @@ model = SkinCancerHybrid_Pro(
     num_classes=CONFIG['num_classes'],
     num_meta_features=CONFIG['num_meta_features'],
 )
+
+# 1. Load weights (Catching generic exceptions just in case Docker pathing is off)
 try:
     model.load_state_dict(
         torch.load("weights/best_model.pth", map_location=CONFIG['device'])
     )
-    model.to(CONFIG['device'])
-    model.eval()
     print("Model loaded successfully.")
-except FileNotFoundError:
-    print("WARNING: 'weights/best_model.pth' not found. Running without weights.")
+except Exception as e:
+    print(f"CRITICAL WARNING: 'weights/best_model.pth' not found or failed to load. Error: {e}")
+
+# 2. THE FIX: These must be OUTSIDE the try block so they are guaranteed to run!
+model.to(CONFIG['device'])
+model.eval()
 
 
 class CustomGradCAM:
@@ -68,6 +72,10 @@ class CustomGradCAM:
 
 def predict_tta(model, image_tensor, meta_tensor):
     """4-view test-time augmentation: original, h-flip, v-flip, 90° rotation."""
+    
+    # 3. Double-enforce evaluation mode just to be safe
+    model.eval()
+    
     img_orig  = image_tensor.unsqueeze(0).to(CONFIG['device'])
     meta_batch = meta_tensor.unsqueeze(0).to(CONFIG['device'])
 
@@ -91,18 +99,6 @@ def predict_tta(model, image_tensor, meta_tensor):
 def run_inference(image_bytes, age, sex, localization):
     """
     Run full inference pipeline.
-
-    Parameters
-    ----------
-    image_bytes   : BytesIO — raw image bytes
-    age           : int     — patient age
-    sex           : str     — 'male' | 'female'
-    localization  : str     — body location string
-
-    Returns
-    -------
-    dict with keys: top_prediction, top_confidence, margin, is_uncertain,
-                    classes, probabilities, gradcam_base64
     """
     image        = Image.open(image_bytes).convert("RGB")
     image_tensor = get_inference_transforms()(image)
