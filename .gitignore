@@ -1,0 +1,46 @@
+# -------------------------------
+# 1. Python & Virtual Environments
+# -------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+venv/
+env/
+.venv/
+.env
+
+# -------------------------------
+# 2. Machine Learning & PyTorch
+# -------------------------------
+# ⚠️ CRITICAL: Ignore all heavy model weights
+weights/*.pth
+*.pth
+*.pt
+*.h5
+*.pkl
+
+# Ignore raw data and test images 
+# (You don't want to push patient data or large image folders to GitHub)
+test_images/
+data/
+datasets/
+
+# -------------------------------
+# 3. Web Framework & Build
+# -------------------------------
+# Dash/Flask/Gunicorn temp files
+instance/
+.webassets-cache
+build/
+dist/
+*.egg-info/
+
+# -------------------------------
+# 4. OS, IDEs, & Logs
+# -------------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
