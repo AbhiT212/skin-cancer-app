@@ -7,3 +7,4 @@ dash-bootstrap-components
 plotly
 gunicorn
 opencv-python-headless
+pandas 
