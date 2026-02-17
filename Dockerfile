@@ -11,6 +11,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of your application code
 COPY . .
 
+RUN cat weights/best_model.pth.part* > weights/best_model.pth && rm weights/best_model.pth.part*
 # Expose the port that Google Cloud Run expects
 EXPOSE 8080
 

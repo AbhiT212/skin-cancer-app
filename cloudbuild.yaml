@@ -1,19 +1,10 @@
 steps:
-  # Step 1: Build Docker container (No downloading weights!)
   - name: 'gcr.io/cloud-builders/docker'
-    args: 
-      - 'build'
-      - '-t'
-      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/${_SERVICE_NAME}:$COMMIT_SHA'
-      - '.'
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/${_SERVICE_NAME}:$COMMIT_SHA', '.']
 
-  # Step 2: Push image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: 
-      - 'push'
-      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/${_SERVICE_NAME}:$COMMIT_SHA'
+    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/${_SERVICE_NAME}:$COMMIT_SHA']
 
-  # Step 3: Deploy to Cloud Run with Live Volume Mount
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
@@ -31,19 +22,11 @@ steps:
       - '--allow-unauthenticated' 
       - '--port'
       - '8080'
-      # --- CLOUD STORAGE FUSE FLAGS ---
-      - '--execution-environment'
-      - 'gen2'
-      - '--add-volume'
-      - 'name=weights-vol,type=cloud-storage,bucket=${_BUCKET_NAME}'
-      - '--add-volume-mount'
-      - 'volume=weights-vol,mount-path=/app/weights'
 
 substitutions:
   _REGION: 'europe-west1'
   _REPO_NAME: 'skin-cancer-repo'
   _SERVICE_NAME: 'skin-cancer-app'
-  _BUCKET_NAME: 'neuroai-data-abhi2026'
 
 options:
   logging: CLOUD_LOGGING_ONLY

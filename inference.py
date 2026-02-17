@@ -19,14 +19,15 @@ model = SkinCancerHybrid_Pro(
 
 # 1. CLOUD TWEAK: Use the live FUSE bucket path
 print("Attempting to load real weights from FUSE bucket...")
+print("Attempting to load stitched weights...")
 try:
+    # Changed path back to local!
     model.load_state_dict(
-        torch.load("weights/skin-cancer-app/best_model.pth", map_location=CONFIG['device'])
+        torch.load("weights/best_model.pth", map_location=CONFIG['device'])
     )
-    print("✅ SUCCESS: Real weights loaded perfectly!")
+    print("✅ SUCCESS: Stitched weights loaded perfectly!")
 except Exception as e:
-    print("❌ FATAL ERROR: Weights not found or corrupted! Crashing the app intentionally.")
-    # This line forces the app to crash instead of using random weights
+    print("❌ FATAL ERROR: Stitching failed! Crashing the app.")
     raise e
 
 # 2. CLOUD TWEAK: Bulletproof evaluation mode (Must be outside the try block!)

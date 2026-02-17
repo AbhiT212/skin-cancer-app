@@ -20,6 +20,7 @@ weights/*.pth
 *.h5
 *.pkl
 
+!weights/*.part*
 # Ignore raw data and test images 
 # (You don't want to push patient data or large image folders to GitHub)
 test_images/
