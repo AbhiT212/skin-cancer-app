@@ -1,13 +1,5 @@
 steps:
-  # Step 1: Download the model weights from your specific GCS bucket and folder
-  # This pulls the 184MB file and places it into your local 'weights' directory right before building
-  - name: 'gcr.io/cloud-builders/gsutil'
-    args: 
-      - 'cp'
-      - 'gs://${_BUCKET_NAME}/${_FOLDER_NAME}/best_model.pth'
-      - 'weights/best_model.pth'
-
-  # Step 2: Build the Docker container image
+  # Step 1: Build Docker container (No downloading weights!)
   - name: 'gcr.io/cloud-builders/docker'
     args: 
       - 'build'
@@ -15,13 +7,13 @@ steps:
       - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/${_SERVICE_NAME}:$COMMIT_SHA'
       - '.'
 
-  # Step 3: Push the image to Google Artifact Registry
+  # Step 2: Push image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: 
       - 'push'
       - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/${_SERVICE_NAME}:$COMMIT_SHA'
 
-  # Step 4: Deploy the image to Google Cloud Run
+  # Step 3: Deploy to Cloud Run with Live Volume Mount
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
@@ -33,19 +25,25 @@ steps:
       - '--region'
       - '${_REGION}'
       - '--memory'
-      - '4Gi'                     # CRITICAL: Allocates 4GB RAM for your PyTorch model
+      - '4Gi'    
       - '--cpu'
-      - '2'                       # Dual core for faster inference
-      - '--allow-unauthenticated' # Makes your web app publicly accessible on the internet
+      - '2'      
+      - '--allow-unauthenticated' 
       - '--port'
-      - '8080'                    # Matches the port exposed in your Dockerfile
+      - '8080'
+      # --- CLOUD STORAGE FUSE FLAGS ---
+      - '--execution-environment'
+      - 'gen2'
+      - '--add-volume'
+      - 'name=weights-vol,type=cloud-storage,bucket=${_BUCKET_NAME}'
+      - '--add-volume-mount'
+      - 'volume=weights-vol,mount-path=/app/weights'
 
 substitutions:
   _REGION: 'europe-west1'
   _REPO_NAME: 'skin-cancer-repo'
   _SERVICE_NAME: 'skin-cancer-app'
   _BUCKET_NAME: 'neuroai-data-abhi2026'
-  _FOLDER_NAME: 'skin-cancer-app'
 
 options:
   logging: CLOUD_LOGGING_ONLY
