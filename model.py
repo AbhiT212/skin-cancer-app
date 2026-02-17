@@ -7,7 +7,7 @@ class ConvNextTransformerStream(nn.Module):
     def __init__(self, transformer_dim=512, num_heads=8):
         super().__init__()
         weights = models.ConvNeXt_Tiny_Weights.DEFAULT
-        convnext = models.convnext_tiny(weights=weights)
+        convnext = models.convnext_tiny(weights=None)
         self.backbone = convnext.features
         self.projection = nn.Conv2d(768, transformer_dim, kernel_size=1)
         self.pos_embedding = nn.Parameter(torch.randn(1, 400, transformer_dim)) 
@@ -34,7 +34,7 @@ class ConvNextTransformerStream(nn.Module):
 class EfficientNetStream(nn.Module):
     def __init__(self):
         super().__init__()
-        self.effnet = models.efficientnet_b0(weights=models.EfficientNet_B0_Weights.DEFAULT)
+        self.effnet = models.efficientnet_b0(weights=None)
         self.backbone = self.effnet.features
         self.pool = self.effnet.avgpool
         

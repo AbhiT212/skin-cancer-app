@@ -8,6 +8,7 @@ from config import CONFIG, IDX_TO_CLASS
 from model import SkinCancerHybrid_Pro
 from utils import get_inference_transforms, process_metadata
 
+torch.set_num_threads(1)
 # Silence the PyTorch NNPACK warning for Cloud Run virtual CPUs
 torch.backends.nnpack.enabled = False
 
