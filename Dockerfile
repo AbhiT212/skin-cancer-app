@@ -12,8 +12,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 RUN cat weights/best_model.pth.part* > weights/best_model.pth && rm weights/best_model.pth.part*
-# Expose the port that Google Cloud Run expects
-EXPOSE 8080
+# Expose the port that Google Cloud Run expects #updating port for hugging face
+EXPOSE 7860
 
-# Command to run your Dash web app using Gunicorn
-CMD ["gunicorn", "app:server", "--bind", "0.0.0.0:8080", "--workers", "1", "--timeout", "120"]
+# Command to run your Dash web app using Gunicorn port updation for hugging face
+CMD ["gunicorn", "app:server", "--bind", "0.0.0.0:7860", "--workers", "1", "--timeout", "120"]
